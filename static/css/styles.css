@@ -8,10 +8,7 @@
     text-anchor: end;
 }
 
-.tick text {
-  font: 8px sans-serif;
-  text-anchor: middle;
-}
+
 
 svg g {
   transform: translate(5,0);
@@ -58,4 +55,9 @@ svg g {
 
 .chartContainer {
   margin-left:25%;
+}
+
+.tick text {
+  font: 8px sans-serif;
+  text-anchor: middle;
 }
