@@ -33,7 +33,7 @@ svg g {
     fill: steelblue;
 }
 
-.timeData text {
+.timeData g text {
     fill: black;
     font: 10px sans-serif;
     text-anchor: end;
@@ -57,7 +57,7 @@ svg g {
   margin-left:25%;
 }
 
-.tick text {
+.timeData g g text {
   font: 8px sans-serif;
   text-anchor: middle;
 }
