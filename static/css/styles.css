@@ -61,3 +61,8 @@ svg g {
   font: 8px sans-serif;
   text-anchor: middle;
 }
+
+.ageData g g text {
+  font: 8px sans-serif;
+  text-anchor: middle;
+}
