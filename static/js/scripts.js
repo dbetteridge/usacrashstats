@@ -1,6 +1,5 @@
-
-//fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/age/age.json')
 fetch('age.json')
+//fetch('/age')
 .then(function(data){
     return data.json()
 })
@@ -10,9 +9,7 @@ fetch('age.json')
 
 function displayData(data){
     ageGraph(data);
-    createMap(data);
-    
-    
+    createMap(data);    
 }
 
 function countData(data){
@@ -63,14 +60,14 @@ function ageGraph(data){
         .attr("y", barHeight / 2)
         .attr("dy", ".35em")
         .text(function(d,i){ return A_AGE3[i+1]})
-    d3.select("svg").append("g")
+    d3.select(".ageData").append("g")
         .attr("transform", "translate(20,"+(height-40)+")")
         .attr("class", "xAxis")
         .call(xAxis)
     .append("text")
         .text("Number of Fatalities")
         .attr("transform", "translate("+width/2+",30)")
-    d3.select("svg").append("g")
+    d3.select(".ageData").append("g")
         .attr("transform", "translate(20,0)")
         .attr("class", "yAxis")
         .call(yAxis)                
@@ -90,10 +87,18 @@ function createMap(crashdata){
     })
     layer.addTo(map);
     var markers = L.markerClusterGroup('locations');
-    
-    
-    //fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/states/total.geo.json')
+    var timedata;
+//    fetch('/time')
+    fetch('time.json')
+    .then(function(data){
+        return data.json()
+    })
+    .then(function(json){ 
+        timeGraph(json);
+        timedata = json;
+    });
     fetch('total.geo.json')
+    //fetch('/States')
     .then(function(data){
         return data.json()
     })
@@ -104,6 +109,7 @@ function createMap(crashdata){
                 var deathdata = stateDeaths(layer.feature.properties.fips,crashdata);                
                 layer.on('click',function(e){
                     ageGraph(deathdata.statedata)
+                    timeGraph(stateDeaths(layer.feature.properties.fips, timedata).statedata);
                     latlon(map,markers,layer.feature.properties.fips, locations)
                 })
 
@@ -111,9 +117,9 @@ function createMap(crashdata){
         }       
     })
 
-    var locations;
-    //fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/locations/loc.json')
+    var locations;    
     fetch('loc.json')
+    //fetch('/loc')
     .then(function(data){
         return data.json()
     })
@@ -152,4 +158,84 @@ function latlon(map,markers, stateid,json){
     markers.addLayers(markerArray);
     map.addLayer(markers)
     
+}
+
+function countTimeData(data){
+    var countTime = {0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0,15:0,16:0,17:0,18:0,19:0,20:0,21:0,22:0,23:0};
+    data.map(function(element){
+        countTime[element.HOUR] +=1
+    });
+    
+    return countTime
+}
+
+function timeGraph(data){   
+
+    var countTimes = countTimeData(data)
+    countTimesMax = 0
+    
+    Object.keys(countTimes).map(function(element){
+        if (countTimes[element] > countTimesMax){
+            countTimesMax = countTimes[element]
+        }
+    })
+
+    var keys = Object.keys(countTimes);
+    var values = keys.map(function(v){ return countTimes[v];});
+    var height = 520;
+    var width = 450;
+    var x = d3.scaleLinear()
+    .domain([0, countTimesMax])
+    .range([0,width-100]) 
+    var y = d3.scaleLinear()
+    .domain([0, height-40])
+    .range([0,height-40])   
+    var xAxis = d3.axisBottom(x);   
+    var yAxis = d3.axisLeft(y).tickFormat(""); 
+    var barHeight = 20;
+    d3.select(".timeData").selectAll("svg > *").remove();
+    var ageData = d3.select(".timeData");
+    ageData.attr("width", width).attr("height",height);
+    var bar = ageData.selectAll("g")
+        .data(values)
+    .enter().append("g")
+        .attr("transform", function(d, i) { if (i<24){return "translate(20," + i * barHeight + ")"; }});    
+    bar.append("rect")
+        .style("width", function(d,i) { if (i<24){return x(d) + "px";}})
+        .style("height", barHeight +"px")      
+        .attr("stroke", "black")  
+    bar.append("text")
+        .attr("x", function(d,i) { if (i<24){return x(d) + 60;}})
+        .attr("y", barHeight / 2)
+        .attr("dy", ".35em")
+        .text(function(d,i){ 
+            if (i<24){
+                if(i < 10){
+                    if(i+1 < 10){
+                        return ("0"+i+"00-0"+(i+1)+"00")
+                    }else{
+                        return (i+"000-"+(i+1)+"00")
+                    }
+                }else{
+                    return (i+"00-"+(i+1)+"00")
+                }
+            }
+        })
+    d3.select(".timeData").append("g")
+        .attr("transform", "translate(20,"+(height-40)+")")
+        .attr("class", "xAxis")
+        .call(xAxis)
+    .append("text")
+        .text("Number of Fatalities")
+        .attr("transform", "translate("+width/2+",30)")
+    d3.select(".timeData").append("g")
+        .attr("transform", "translate(20,0)")
+        .attr("class", "yAxis")
+        .call(yAxis)                
+    .append("text")
+        .text("Hour")          
+        .attr("transform", "rotate(-90)translate("+ (-(height/2)+20)+", -10 )")
+    d3.select(".timeTitle")
+        .style("margin-left",(width/2 - 20) + "px")
+
 }
