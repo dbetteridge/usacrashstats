@@ -208,6 +208,7 @@ function timeGraph(data){
         .style("height", barHeight +"px")      
         .attr("stroke", "black")  
         .attr("fill","steelblue")
+        .attr("x", 20)
     bar.append("text")
         .attr("x", function(d,i) { if (i<24){return x(d) + 60;}})
         .attr("y", barHeight / 2)
