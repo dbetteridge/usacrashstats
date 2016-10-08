@@ -85,7 +85,7 @@ function ageGraph(data){
 function createMap(crashdata){
     var map = L.map('statMap').setView([37.0902,-95.7129],4)
 
-    var layer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+    var layer = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     })
     layer.addTo(map);
