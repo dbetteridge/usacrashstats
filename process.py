@@ -12,15 +12,29 @@ def processData():
 
     vehicles = pd.read_csv("./data/VEH_AUX.CSV")
 
+    accident = pd.read_csv("./data/accident.csv")
 
     df = accidents.merge(persons, how='left', on='ST_CASE')
 
     df = df.merge(vehicles, how='left', on='ST_CASE')
-    cols_to_keep = ['STATE', 'A_AGE3']
+    df = df.merge(accident,how='left', on='ST_CASE')
+    print(df.columns)
+    cols_to_keep = ['STATE_x', 'A_AGE3']
 
-    df_clean = df[cols_to_keep].dropna()
-    f = open('./data.json', 'w')
-    f.write(df_clean.to_json(orient='records'))
+    df_clean_age = df[cols_to_keep].dropna()
+    cols_to_keep = ['STATE_x','LATITUDE','LONGITUD']
+    df_clean_loc = df[cols_to_keep].dropna()
+    cols_to_keep = ['STATE_x','HOUR','MINUTE']
+    df_clean_time = df[cols_to_keep].dropna()
+
+    f = open('./age.json', 'w')
+    f.write(df_clean_age.to_json(orient='records'))
+
+    f2 = open('./loc.json','w')
+    f2.write(df_clean_loc.to_json(orient='records'))
+
+    f3 = open('./time.json','w')
+    f3.write(df_clean_time.to_json(orient='records'))
 
 def createUSA():
     newfile = open('./data/USA/total.geo.json', 'w')
@@ -34,9 +48,19 @@ app = Flask(__name__)
 def index():
     return render_template("index.html")
 
-@app.route("/data")
-def data():
-    fo = open('./data.json','r')
+@app.route("/age")
+def age():
+    fo = open('./age.json','r')
+    return fo.read()
+
+@app.route("/loc")
+def loc():
+    fo = open('./loc.json','r')
+    return fo.read()
+
+@app.route("/time")
+def time():
+    fo = open('./time.json','r')
     return fo.read()
 
 @app.route("/States")

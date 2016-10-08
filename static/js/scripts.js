@@ -1,5 +1,6 @@
 
-fetch('/data')
+//fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/age/age.json')
+fetch('/age.json')
 .then(function(data){
     return data.json()
 })
@@ -88,8 +89,11 @@ function createMap(crashdata){
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     })
     layer.addTo(map);
-
-    fetch('/States')
+    var markers = L.markerClusterGroup('locations');
+    
+    
+    //fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/states/total.geo.json')
+    fetch('/total.geo.json')
     .then(function(data){
         return data.json()
     })
@@ -97,26 +101,55 @@ function createMap(crashdata){
         for(var i=0; i<json.features.length;i++){
             var thislayer = L.geoJSON(json.features[i]).addTo(map);
             thislayer.eachLayer(function(layer){
-                var deathdata = stateDeaths(layer.feature.properties.fips,crashdata);
-                layer.bindPopup("Deaths: " + deathdata.count);
+                var deathdata = stateDeaths(layer.feature.properties.fips,crashdata);                
                 layer.on('click',function(e){
                     ageGraph(deathdata.statedata)
+                    latlon(map,markers,layer.feature.properties.fips, locations)
                 })
+
             })
         }       
     })
+
+    var locations;
+    //fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/locations/loc.json')
+    fetch('/loc.json')
+    .then(function(data){
+        return data.json()
+    })
+    .then(function(json){ 
+        locations = json
+    });
+
    
 }
 
 function stateDeaths(id,data){
     count = 0
     statedata = []
+    
     for(var i=0;i<data.length;i++){
-        if(data[i].STATE == id){
+        if(data[i].STATE_x == id){
             count+=1
             statedata.push(data[i])
         }
+        
     }    
     
     return {"count":count, "statedata":statedata}
+}
+
+function latlon(map,markers, stateid,json){
+    markers.clearLayers();
+    var markerArray = [];
+    
+    for(var i=0;i<json.length;i++){
+        if(json[i].STATE_x == stateid){
+            marker = new L.marker([json[i].LATITUDE,json[i].LONGITUD])
+            markerArray.push(marker)
+        }
+    }
+    markers.addLayers(markerArray);
+    map.addLayer(markers)
+    
 }
