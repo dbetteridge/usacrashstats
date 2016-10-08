@@ -25,7 +25,7 @@ svg g {
   height: 400px;
 }
 
-#statMap > div.leaflet-pane.leaflet-map-pane > div.leaflet-pane.leaflet-marker-pane > div:nth-child(1) > div > span {
+.marker-cluster > span {
   color:black;
   text-shadow: 1px 1px white;
   font-size: 1.5em;
