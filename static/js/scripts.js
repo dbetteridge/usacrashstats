@@ -1,5 +1,5 @@
-fetch('age.json')
-//fetch('/age')
+//fetch('age.json')
+fetch('/age')
 .then(function(data){
     return data.json()
 })
@@ -14,7 +14,9 @@ function displayData(data){
 
 function countData(data){
     var countAges = {1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0};
+    console.log(data[data.length - 1]);
     data.map(function(element){
+        
         countAges[element.A_AGE3] +=1
     });
     
@@ -29,7 +31,7 @@ function ageGraph(data){
             countAgesMax = countAges[element]
         }
     })
-
+    
     A_AGE3 = {1:"0-3",2:"4-7",3:"8-12",4:"13-15",5:"16-20",6:"21-24",7:"25-34",8:"35-44",9:"45-54",10:"55-64",11:"65-74",12:"75+",13:"NA"}
     var keys = Object.keys(countAges);
     var values = keys.map(function(v){ return countAges[v];});
@@ -88,8 +90,8 @@ function createMap(crashdata){
     layer.addTo(map);
     var markers = L.markerClusterGroup('locations');
     var timedata;
-//    fetch('/time')
-    fetch('time.json')
+    fetch('/time')
+    //fetch('time.json')
     .then(function(data){
         return data.json()
     })
@@ -97,8 +99,8 @@ function createMap(crashdata){
         timeGraph(json);
         timedata = json;
     });
-    fetch('total.geo.json')
-    //fetch('/States')
+    //fetch('total.geo.json')
+    fetch('/States')
     .then(function(data){
         return data.json()
     })
@@ -118,8 +120,8 @@ function createMap(crashdata){
     })
 
     var locations;    
-    fetch('loc.json')
-    //fetch('/loc')
+    //fetch('loc.json')
+    fetch('/loc')
     .then(function(data){
         return data.json()
     })

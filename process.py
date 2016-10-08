@@ -19,12 +19,13 @@ def processData():
     df = df.merge(vehicles, how='left', on='ST_CASE')
     df = df.merge(accident,how='left', on='ST_CASE')
     print(df.columns)
-    cols_to_keep = ['STATE_x', 'A_AGE3']
+    df.drop_duplicates(subset='ST_CASE', inplace=True)
+    cols_to_keep = ['ST_CASE','STATE_x', 'A_AGE3']
 
     df_clean_age = df[cols_to_keep].dropna()
-    cols_to_keep = ['STATE_x','LATITUDE','LONGITUD']
+    cols_to_keep = ['ST_CASE','STATE_x','LATITUDE','LONGITUD']
     df_clean_loc = df[cols_to_keep].dropna()
-    cols_to_keep = ['STATE_x','HOUR','MINUTE']
+    cols_to_keep = ['ST_CASE','STATE_x','HOUR','MINUTE']
     df_clean_time = df[cols_to_keep].dropna()
 
     f = open('./age.json', 'w')
