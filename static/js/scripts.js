@@ -1,6 +1,6 @@
 
 //fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/age/age.json')
-fetch('/age.json')
+fetch('age.json')
 .then(function(data){
     return data.json()
 })
@@ -93,7 +93,7 @@ function createMap(crashdata){
     
     
     //fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/states/total.geo.json')
-    fetch('/total.geo.json')
+    fetch('total.geo.json')
     .then(function(data){
         return data.json()
     })
@@ -113,7 +113,7 @@ function createMap(crashdata){
 
     var locations;
     //fetch('https://s3-ap-southeast-2.amazonaws.com/crashdata/locations/loc.json')
-    fetch('/loc.json')
+    fetch('loc.json')
     .then(function(data){
         return data.json()
     })
