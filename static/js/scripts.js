@@ -80,7 +80,7 @@ function ageGraph(data){
         .text("Age groups")          
         .attr("transform", "rotate(-90)translate("+ (-(height/2)+20)+", -10 )")
     d3.select(".ageTitle")
-        .style("margin-left",(width/2 - 20) + "px")
+        .style("margin-left",(width/2 - 40) + "px")
 
 }
 
@@ -244,6 +244,6 @@ function timeGraph(data){
         .text("Hour")          
         .attr("transform", "rotate(-90)translate("+ (-(height/2)+20)+", -10 )")
     d3.select(".timeTitle")
-        .style("margin-left",(width/2 - 20) + "px")
+        .style("margin-left",(width/2 - 40) + "px")
 
 }
