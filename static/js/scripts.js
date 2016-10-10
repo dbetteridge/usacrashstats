@@ -1,5 +1,5 @@
-//fetch('age.json')
-fetch('/age')
+fetch('age.json')
+//fetch('/age')
 .then(function(data){
     return data.json()
 })
@@ -93,8 +93,8 @@ function createMap(crashdata){
     layer.addTo(map);
     var markers = L.markerClusterGroup('locations');
     var timedata;
-    fetch('/time')
-    //fetch('time.json')
+    //fetch('/time')
+    fetch('time.json')
     .then(function(data){
         return data.json()
     })
@@ -102,8 +102,8 @@ function createMap(crashdata){
         timeGraph(json);
         timedata = json;
     });
-    //fetch('total.geo.json')
-    fetch('/States')
+    fetch('total.geo.json')
+    //fetch('/States')
     .then(function(data){
         return data.json()
     })
@@ -123,8 +123,8 @@ function createMap(crashdata){
     })
 
     var locations;    
-    //fetch('loc.json')
-    fetch('/loc')
+    fetch('loc.json')
+    //fetch('/loc')
     .then(function(data){
         return data.json()
     })
