@@ -1,5 +1,5 @@
-fetch('age.json')
-//fetch('/age')
+//fetch('age.json')
+fetch('/age')
 .then(function(data){
     return data.json()
 })
@@ -93,8 +93,8 @@ function createMap(crashdata){
     layer.addTo(map);
     var markers = L.markerClusterGroup('locations');
     var timedata;
-    //fetch('/time')
-    fetch('time.json')
+    fetch('/time')
+    //fetch('time.json')
     .then(function(data){
         return data.json()
     })
@@ -102,8 +102,8 @@ function createMap(crashdata){
         timeGraph(json);
         timedata = json;
     });
-    fetch('total.geo.json')
-    //fetch('/States')
+    //fetch('total.geo.json')
+    fetch('/States')
     .then(function(data){
         return data.json()
     })
@@ -123,8 +123,8 @@ function createMap(crashdata){
     })
 
     var locations;    
-    fetch('loc.json')
-    //fetch('/loc')
+    //fetch('loc.json')
+    fetch('/loc')
     .then(function(data){
         return data.json()
     })
@@ -187,7 +187,7 @@ function timeGraph(data){
 
     var keys = Object.keys(countTimes);
     var values = keys.map(function(v){ return countTimes[v];});
-    var height = 520;
+    var height = 300;
     var width = 450;
     var x = d3.scaleLinear()
     .domain([0, countTimesMax])
@@ -197,7 +197,7 @@ function timeGraph(data){
     .range([0,height-40])   
     var xAxis = d3.axisBottom(x);   
     var yAxis = d3.axisLeft(y).tickFormat(""); 
-    var barHeight = 20;
+    var barHeight = (height-40)/24;
     d3.select(".timeData").selectAll("svg > *").remove();
     var ageData = d3.select(".timeData");
     ageData.attr("width", width).attr("height",height);
@@ -244,6 +244,6 @@ function timeGraph(data){
         .text("Hour")          
         .attr("transform", "rotate(-90)translate("+ (-(height/2)+20)+", -10 )")
     d3.select(".timeTitle")
-        .style("margin-left",(width/2 - 60) + "px")
+        .style("margin-left",(width/2 - 100) + "px")
 
 }
