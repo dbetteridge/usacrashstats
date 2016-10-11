@@ -1,16 +1,31 @@
 A_AGE3 = {1:"0-3",2:"4-7",3:"8-12",4:"13-15",5:"16-20",6:"21-24",7:"25-34",8:"35-44",9:"45-54",10:"55-64",11:"65-74",12:"75+",13:"NA"}
-fetch('age.json')
-//fetch('/age')
+var globalAgeData;
+var globalTimeData;
+fetch('/age')
 .then(function(data){
     return data.json()
 })
 .then(function(json){
+    globalAgeData = json;
     displayData(json)
 })
 
-function displayData(data){
-    ageGraph(data);
-    createMap(data);    
+function displayData(agedata){
+    var map = L.map('statMap').setView([37.0902,-95.7129],4)
+    
+    fetch('/time')
+    //fetch('time.json')
+    .then(function(data){
+        return data.json()
+    })
+    .then(function(json){ 
+        globalTimeData = json;
+        timeGraph(json,agedata,map);
+        timedata = json;
+        ageGraph(agedata,timedata, map);
+        createMap(agedata,timedata,map); 
+    });
+       
 }
 
 function countData(data){
@@ -24,8 +39,8 @@ function countData(data){
     return countAges
 }
 
-function ageGraph(data){
-    var countAges = countData(data)
+function ageGraph(agedata,timedata, map){
+    var countAges = countData(agedata)
     countAgesMax = 0
     Object.keys(countAges).map(function(element){
         if (countAges[element] > countAgesMax){
@@ -48,19 +63,50 @@ function ageGraph(data){
     var yAxis = d3.axisLeft(y).tickFormat(""); 
     var barHeight = 20;
     d3.select(".ageData").selectAll("svg > *").remove();
-    var ageData = d3.select(".ageData");
+    var ageData = d3.select(".ageData");       
     ageData.attr("width", width).attr("height",height);
     var bar = ageData.selectAll("g")
         .data(values)
     .enter().append("g")
-        .attr("transform", function(d, i) { return "translate(20," + i * barHeight + ")"; });    
+        .attr("transform", function(d, i) { return "translate(20," + i * barHeight + ")"; });        
     bar.append("rect")
         .style("width", function(d) { return x(d) + "px";})
         .style("height", barHeight +"px")      
         .attr("stroke", "black")  
         .attr("fill","steelblue")
         .attr("height", barHeight +"px")
-        .attr("width", function(d,i) { return x(d) + "px";})
+        .attr("width", function(d,i) { return x(d) + "px";})        
+        .on("click", function(d,i) { 
+              
+                if(map._containerId){
+                    map.remove();
+                    map = L.map('statMap').setView([37.0902,-95.7129],4)
+                }
+              var newagedata = [];
+              for(var j=0;j<agedata.length;j++){
+                  if(agedata[j].A_AGE3 == i+1){
+                      newagedata.push(agedata[j]);
+                  }
+              }    
+              var newtimedata = [];      
+              for(var a=0;a<newagedata.length;a++){
+                  for(var b=0;b<timedata.length;b++){
+                      if(newagedata[a].ST_CASE == timedata[b].ST_CASE){
+                          newtimedata.push(timedata[b]);
+                      }
+                  }
+              }
+              timeGraph(newtimedata,newagedata,map);
+              ageGraph(newagedata,newtimedata,map);
+              createMap(newagedata, newtimedata,map);
+              document.getElementById('resetAge').onclick = function(){
+                  resetAge(newtimedata,map);
+              }
+              document.getElementById('resetTime').onclick = function(){
+                  resetTime(newagedata,map);
+              }              
+              
+          });
     bar.append("text")
         .attr("x", function(d) { return x(d) + 30; })
         .attr("y", barHeight / 2)
@@ -83,28 +129,22 @@ function ageGraph(data){
     d3.select(".ageTitle")
         .style("margin-left",(width/2 - 60) + "px")
 
+    
 }
 
-function createMap(crashdata){
-    var map = L.map('statMap').setView([37.0902,-95.7129],4)
-
+function createMap(agedata, timedata,map){
+    
+    
+    
     var layer = L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     })
     layer.addTo(map);
     var markers = L.markerClusterGroup('locations');
     var timedata;
-    //fetch('/time')
-    fetch('time.json')
-    .then(function(data){
-        return data.json()
-    })
-    .then(function(json){ 
-        timeGraph(json);
-        timedata = json;
-    });
-    fetch('total.geo.json')
-    //fetch('/States')
+    
+    //fetch('total.geo.json')
+    fetch('/States')
     .then(function(data){
         return data.json()
     })
@@ -112,28 +152,37 @@ function createMap(crashdata){
         for(var i=0; i<json.features.length;i++){
             var thislayer = L.geoJSON(json.features[i]).addTo(map);
             thislayer.eachLayer(function(layer){
-                var deathdata = stateDeaths(layer.feature.properties.fips,crashdata);                
+                var deathdata = stateDeaths(layer.feature.properties.fips,agedata);                
                 layer.on('click',function(e){
-                    ageGraph(deathdata.statedata)
-                    timeGraph(stateDeaths(layer.feature.properties.fips, timedata).statedata);
-                    latlon(map,markers,layer.feature.properties.fips, locations, crashdata)
+                    ageGraph(deathdata.statedata,timedata, map);
+                    timeGraph(timedata,deathdata.statedata,map);    
+                    document.getElementById('resetAge').onclick = function(){
+                        resetAge(timedata,map);
+                    }
+                    document.getElementById('resetTime').onclick = function(){
+                        resetTime(deathdata.statedata,map);
+                    }
+                              
                 })
 
             })
-        }       
+        }     
+        var locations;    
+        //fetch('loc.json')
+        fetch('/loc')
+        .then(function(data){
+            return data.json()
+        })
+        .then(function(json){ 
+            locations = json
+            latlon(map,markers,locations, agedata,timedata);
+        });
+  
+        
     })
 
-    var locations;    
-    fetch('loc.json')
-    //fetch('/loc')
-    .then(function(data){
-        return data.json()
-    })
-    .then(function(json){ 
-        locations = json
-    });
-
-   
+    
+    return map
 }
 
 function stateDeaths(id,data){
@@ -151,72 +200,85 @@ function stateDeaths(id,data){
     return {"count":count, "statedata":statedata}
 }
 
-function latlon(map,markers, stateid,json, crashdata){
+function latlon(map,markers, locations, crashdata,timedata){
     markers.clearLayers();
     var markerArray = [];
     var timeData;
-    //fetch("/time")
-    fetch('time.json')
+    fetch("/time")
+    //fetch('time.json')
     .then(function(data){
         return data.json()
     })
     .then(function(timejson){ 
         timeData = timejson
     });
-    for(var i=0;i<json.length;i++){
-        if(json[i].STATE_x == stateid){
-            var marker = new L.marker([json[i].LATITUDE,json[i].LONGITUD])
-            var caseID = json[i].ST_CASE;
-            
+    var newlocations = [];
+    for(var i=0;i<locations.length;i++){
+        for(var j=0;j<crashdata.length;j++){
+            if(locations[i].ST_CASE == crashdata[j].ST_CASE){
+                newlocations.push(locations[i]);
+            }
+        }    
+        
+    }
+    for(var i=0;i<newlocations.length;i++){
+        
+            var marker = new L.marker([newlocations[i].LATITUDE,newlocations[i].LONGITUD]);
+            var caseID = newlocations[i].ST_CASE;
+            var crashInfo;
             var attachPopup = function(caseID, e){
                 
-                    var crashInfo;
-                    for (var i=0;i<crashdata.length;i++){
-                        if(crashdata[i].ST_CASE === caseID){
-                            crashInfo = crashdata[i];
-                        }
-                    }
                     
-                    for (var i=0;i<timeData.length;i++){
-                        if(timeData[i].ST_CASE === caseID){
-                            var properTime = timeString(timeData[i].HOUR, timeData[i].MINUTE);
-                            
-                            var popup = L.popup();
-                            popup
-                            .setLatLng(e.latlng)
-                            .setContent(
-                                "<dl><dt>CASE:</dt><dd>" + timeData[i].ST_CASE + "</dd>" +
-                                "<dt>TIME:</dt><dd>" + properTime +"</dd>" +
-                                "<dt>AGE BRACKET:</dt><dd>" + A_AGE3[crashInfo.A_AGE3] + "</dd></dl>"
-                            )
-                            .openOn(map)                            
-                        }
+                for (var i=0;i<crashdata.length;i++){
+                    if(crashdata[i].ST_CASE === caseID){
+                        crashInfo = crashdata[i];
                     }
+                }
+                
+                
+                for (var i=0;i<timeData.length;i++){
+                    if(timeData[i].ST_CASE === caseID){
+                        var properTime = timeString(timeData[i].HOUR, timeData[i].MINUTE);
+                        
+                        var popup = L.popup();
+                        popup
+                        .setLatLng(e.latlng)
+                        .setContent(
+                            "<dl><dt>CASE:</dt><dd>" + timeData[i].ST_CASE + "</dd>" +
+                            "<dt>TIME:</dt><dd>" + properTime +"</dd>" +
+                            "<dt>AGE BRACKET:</dt><dd>" + A_AGE3[crashInfo.A_AGE3] + "</dd></dl>"
+                        )
+                        .openOn(map)                            
+                    }
+                }
+                
             }
             // Curry function with current caseID so only event id is passed in
+            
             var boundPopup = attachPopup.bind(null, caseID)
-            marker.on('click',boundPopup);            
+            marker.on('click',boundPopup);       
             
             markerArray.push(marker)
-        }
+            
+        
     }
     markers.addLayers(markerArray);
     map.addLayer(markers)
     
 }
 
-function countTimeData(data){
+function countTimeData(timedata){
     var countTime = {0:0,1:0,2:0,3:0,4:0,5:0,6:0,7:0,8:0,9:0,10:0,11:0,12:0,13:0,14:0,15:0,16:0,17:0,18:0,19:0,20:0,21:0,22:0,23:0};
-    data.map(function(element){
+    timedata.map(function(element){
         countTime[element.HOUR] +=1
     });
     
     return countTime
 }
 
-function timeGraph(data){   
+function timeGraph(timedata, agedata,map){   
 
-    var countTimes = countTimeData(data)
+    var countTimes = countTimeData(timedata)
     countTimesMax = 0
     
     Object.keys(countTimes).map(function(element){
@@ -239,9 +301,9 @@ function timeGraph(data){
     var yAxis = d3.axisLeft(y).tickFormat(""); 
     var barHeight = (height-40)/24;
     d3.select(".timeData").selectAll("svg > *").remove();
-    var ageData = d3.select(".timeData");
-    ageData.attr("width", width).attr("height",height);
-    var bar = ageData.selectAll("g")
+    var timeData = d3.select(".timeData");
+    timeData.attr("width", width).attr("height",height);
+    var bar = timeData.selectAll("g")
         .data(values)
     .enter().append("g")
         .attr("transform", function(d, i) { if (i<24){return "translate(20," + i * barHeight + ")"; }});    
@@ -251,7 +313,38 @@ function timeGraph(data){
         .attr("stroke", "black")  
         .attr("fill","steelblue")
         .attr("height", barHeight +"px")
-        .attr("width", function(d,i) { if (i<24){return x(d) + "px";}})
+        .attr("width", function(d,i) { if (i<24){return x(d) + "px";}})        
+        .on("click", function(d,i) {     
+                
+                if(map._containerId){
+                    map.remove();
+                    map = L.map('statMap').setView([37.0902,-95.7129],4)
+                }          
+              var newtimedata = [];
+              for(var j=0;j<timedata.length;j++){
+                  if(timedata[j].HOUR == i){
+                      newtimedata.push(timedata[j]);
+                  }
+              }    
+              var newagedata = [];      
+              for(var a=0;a<newtimedata.length;a++){
+                  for(var b=0;b<agedata.length;b++){
+                      if(newtimedata[a].ST_CASE == agedata[b].ST_CASE){
+                          newagedata.push(agedata[b]);
+                      }
+                  }
+              }
+              timeGraph(newtimedata,newagedata,map);
+              ageGraph(newagedata,newtimedata,map);
+              createMap(newagedata,newtimedata,map);
+              document.getElementById('resetAge').onclick = function(){
+                  resetAge(newtimedata,map);
+              }
+              document.getElementById('resetTime').onclick = function(){
+                  resetTime(newagedata,map);
+              }
+              
+          });
     bar.append("text")
         .attr("x", function(d,i) { if (i<24){return x(d) + 60;}})
         .attr("y", barHeight / 2)
@@ -285,7 +378,7 @@ function timeGraph(data){
         .attr("transform", "rotate(-90)translate("+ (-(height/2)+20)+", -10 )")
     d3.select(".timeTitle")
         .style("margin-left",(width/2 - 100) + "px")
-
+    
 }
 
 function timeString(hour, minute){
@@ -305,4 +398,20 @@ function timeString(hour, minute){
     }
 
     return properTime;
+}
+
+function resetTime(agedata,map){
+    timedata = globalTimeData;
+    timeGraph(timedata,agedata,map);    
+    ageGraph(agedata,timedata, map);
+    createMap(agedata,timedata,map); 
+    
+}
+
+function resetAge(timedata,map){
+    agedata = globalAgeData;
+    timeGraph(timedata,agedata,map);        
+    ageGraph(agedata,timedata, map);
+    createMap(agedata,timedata,map); 
+    
 }

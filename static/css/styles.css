@@ -1,5 +1,6 @@
 .ageData rect {
     fill: steelblue;
+    cursor: pointer;
 }
 
 .ageData text {
@@ -31,6 +32,7 @@ svg g {
 
 .timeData rect {
     fill: steelblue;
+    cursor: pointer;
 }
 
 .timeData g text {
@@ -54,7 +56,7 @@ svg g {
 }
 
 .chartContainer {
-  margin-left:25%;
+  
 }
 
 .timeData g g text {
@@ -65,4 +67,20 @@ svg g {
 .ageData g g text {
   font: 8px sans-serif;
   text-anchor: middle;
+}
+
+.buttons {
+  border-radius: 5px;
+  background-color:steelblue;
+  padding: 1%;
+  margin:1%;
+  float: left;
+  clear:right;
+  cursor: pointer;
+}
+
+.resetButtons {
+  width: 20%;
+  margin-right: 5%;
+  
 }
