@@ -18,6 +18,10 @@
   <div id="dashboard" class="dashboard">
     <div id="dashTitle" class="dashTitle">USA Crashes 2015</div>
     <div id="chartContainer" class="chartContainer">      
+      <div id="resetButtons" class="resetButtons">
+        <div id="resetTime" class="resetTime buttons">Reset Time</div>
+        <div id="resetAge" class="resetAge buttons">Reset Age</div>
+      </div>
       <div id="timeChart" class="timeChart">
         <div id="timeTitle" class="timeTitle">Time Data of Injuries</div>
         <svg id="timeData" class="timeData"></svg>
@@ -33,7 +37,6 @@
         
     </div>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
   <script src="https://unpkg.com/leaflet@1.0.1/dist/leaflet.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.0.0/leaflet.markercluster.js"></script>
   <script src="https://www.promisejs.org/polyfills/promise-7.0.4.min.js"></script>
