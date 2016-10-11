@@ -1,7 +1,8 @@
 A_AGE3 = {1:"0-3",2:"4-7",3:"8-12",4:"13-15",5:"16-20",6:"21-24",7:"25-34",8:"35-44",9:"45-54",10:"55-64",11:"65-74",12:"75+",13:"NA"}
 var globalAgeData;
 var globalTimeData;
-fetch('/age')
+//fetch('/age')
+fetch('age.json')
 .then(function(data){
     return data.json()
 })
@@ -13,8 +14,8 @@ fetch('/age')
 function displayData(agedata){
     var map = L.map('statMap').setView([37.0902,-95.7129],4)
     
-    fetch('/time')
-    //fetch('time.json')
+    //fetch('/time')
+    fetch('time.json')
     .then(function(data){
         return data.json()
     })
@@ -143,8 +144,8 @@ function createMap(agedata, timedata,map){
     var markers = L.markerClusterGroup('locations');
     var timedata;
     
-    //fetch('total.geo.json')
-    fetch('/States')
+    fetch('total.geo.json')
+    //fetch('/States')
     .then(function(data){
         return data.json()
     })
@@ -168,8 +169,8 @@ function createMap(agedata, timedata,map){
             })
         }     
         var locations;    
-        //fetch('loc.json')
-        fetch('/loc')
+        fetch('loc.json')
+        //fetch('/loc')
         .then(function(data){
             return data.json()
         })
@@ -204,8 +205,8 @@ function latlon(map,markers, locations, crashdata,timedata){
     markers.clearLayers();
     var markerArray = [];
     var timeData;
-    fetch("/time")
-    //fetch('time.json')
+    //fetch("/time")
+    fetch('time.json')
     .then(function(data){
         return data.json()
     })
